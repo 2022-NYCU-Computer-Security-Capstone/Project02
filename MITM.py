@@ -1,6 +1,7 @@
 import scapy.all as scapy
 import time
 import sys
+from MITM_misc import getMask1Bits
 
 def getGatewayIP():
     result = scapy.conf.route.route("0.0.0.0")[2]
@@ -81,7 +82,8 @@ if __name__ == "__main__":
     host = getGatewayIP()
     print("Gateway IP: ", host)
 
-    devices = scan(host + "/24")
+    leadingOnes = getMask1Bits()
+    devices = scan(host + "/" + str(leadingOnes))
 
     print("Avaliable devices")
     print("---------------------------")
