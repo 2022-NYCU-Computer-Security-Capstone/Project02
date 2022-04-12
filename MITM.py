@@ -122,6 +122,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("[!] Detected CTRL+C ! restoring the network, please wait...")
         for target in targets:
-            restore(target, host, verbose, devices)
-            restore(host, target, verbose, devices)
+            restore(target, host, devices, verbose)
+            restore(host, target, devices, verbose)
         print("[+] Arp Spoof Stopped")
