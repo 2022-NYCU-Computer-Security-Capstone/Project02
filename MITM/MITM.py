@@ -1,7 +1,7 @@
 import scapy.all as scapy
 import time
 import sys
-from MITM_misc import getMask1Bits
+from MITM.MITM_misc import getMask1Bits
 
 def getGatewayIP():
     result = scapy.conf.route.route("0.0.0.0")[2]
