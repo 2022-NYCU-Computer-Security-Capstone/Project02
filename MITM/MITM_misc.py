@@ -31,5 +31,3 @@ def runSSLSplit():
     import subprocess, os
     pid = subprocess.Popen(["sh", "MITM/mySSLsplit.sh"], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
     return pid
-
-pid = runVPN()
