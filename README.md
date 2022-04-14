@@ -1,2 +1,5 @@
 # Project02
-Project 2 in 2022 NYCU CSC
+
+Implementation of the Man-In-The-Middle attack based on ARP spoofing.
+
+<img src="https://i.imgur.com/rhzBqZI.png">
