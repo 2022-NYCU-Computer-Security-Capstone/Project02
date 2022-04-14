@@ -24,7 +24,7 @@ def fetchPasswd():
             usernameIndex = content.find("&username")
             passwordIndex = content.find("&password")
             tokenIndex = content.find("&token")
-            result.append({"username": content[usernameIndex:passwordIndex], "password": content[passwordIndex:tokenIndex]})
+            result.append({"username": content[usernameIndex + 10:passwordIndex], "password": content[passwordIndex + 10:tokenIndex]})
     return result
 
 def runSSLSplit():
