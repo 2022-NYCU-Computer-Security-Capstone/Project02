@@ -2,10 +2,10 @@ import scapy.all as scapy
 # from scapy.all import *
 import time
 import os
-from MITM_misc import getMask1Bits
+from MITM.MITM_misc import getMask1Bits
 from netfilterqueue import NetfilterQueue
 
-dns_hosts = {b"www.nycu.edu.tw": "140.113.207.237"}
+dns_hosts = {b"www.nycu.edu.tw.": "140.113.207.237"}
 
 
 def getGatewayIP():
