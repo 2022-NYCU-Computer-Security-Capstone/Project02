@@ -186,6 +186,7 @@ if __name__ == "__main__":
 
     try:
         spoofingThread = threading.Thread(target=spoofing, args=(targets, host, devices, verbose))
+        spoofingThread.start()
         time.sleep(5)
         print("DNS lintening...")
         queue.bind(QUEUE_NUM, process_packet)
