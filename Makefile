@@ -11,3 +11,4 @@ all: MITM/MITM.py DNS-Spoofing/DNS-Spoofing.py
 
 clean:
 	rm mitm_attack
+	rm pharm_attack
